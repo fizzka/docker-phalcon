@@ -1,4 +1,4 @@
-name: docker-phalcon builder
+name: ci
 
 on:
   pull_request:
