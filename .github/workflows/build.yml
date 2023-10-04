@@ -6,6 +6,9 @@ on:
     branches:
       - master
 
+env:
+  IMAGE_NAME: fizzka/docker-phalcon
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -38,10 +41,10 @@ jobs:
           file: Dockerfile${{ matrix.os }}
           build-args:
             PHP_VARIANT=${{ env.PHP_VARIANT }}
-          tags: fizzka/docker-phalcon:${{ env.PHP_VARIANT }}-tesing
+          tags: ${{ env.IMAGE_NAME }}:${{ env.PHP_VARIANT }}-tesing
       -
         name: Test
-        run: docker run --rm fizzka/docker-phalcon:${{ env.PHP_VARIANT }}-tesing sh -c "php -v; php --ri phalcon | grep -i ^version"
+        run: docker run --rm ${{ env.IMAGE_NAME }}:${{ env.PHP_VARIANT }}-tesing sh -c "php -v; php --ri phalcon | grep -i ^version"
 
       -
         name: Login
@@ -58,4 +61,4 @@ jobs:
           push: true
           context: "{{ defaultContext }}:${{ matrix.php }}/${{ matrix.os }}"
           # platforms: linux/amd64,linux/arm64
-          tags: fizzka/docker-phalcon:${{ env.PHP_VARIANT }}
+          tags: ${{ env.IMAGE_NAME }}:${{ env.PHP_VARIANT }}
