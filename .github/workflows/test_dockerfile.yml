@@ -31,8 +31,6 @@ jobs:
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        env:
-          PHP_IMAGE: ${{ matrix.php }}
         #   IMAGE_TAG: ${{ matrix.php }}-${{ matrix.os }}
       -
         name: Build
@@ -41,6 +39,8 @@ jobs:
           load: true
           # context: "{{ defaultContext }}:${{ matrix.php }}/${{ matrix.os }}"
           file: Dockerfile-alpine
+          build-args:
+            PHP_VARIANT=${{ matrix.php }}
           # platforms: linux/amd64,linux/arm64
           tags: fizzka/docker-phalcon:${{ env.IMAGE_TAG }}
       -
