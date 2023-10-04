@@ -6,28 +6,49 @@ on:
     branches:
       - master
 
+env:
+  IMAGE_TAG: testing
+
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - linux/amd64
-          # - linux/arm/v6
-          # - linux/arm/v7
-          - linux/arm64
         php:
-          - 8.0
+          # - 8.0
           - 8.1
-          - 8.2
+          # - 8.2
+        os:
+          # - ""
+          - alpine
         variant:
           - "" # cli
-          - fpm
-        os:
-          - ""
-          - alpine
+          # - fpm
 
     steps:
-      - name: testing matrix values
-        run: echo "${{ matrix}} - ${{ matrix.php }} - ${{ matrix.variant }} - ${{ matrix.os }} "
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        # env:
+        #   IMAGE_TAG: ${{ matrix.php }}-${{ matrix.os }}
+      -
+        name: Build
+        uses: docker/build-push-action@v5
+        with:
+          push: false
+          load: true
+          context: "{{ defaultContext }}:${{ matrix.php }}/${{ matrix.os }}"
+          # platforms: linux/amd64,linux/arm64
+          tags: fizzka/docker-phalcon:${{ env.IMAGE_TAG }}
+      -
+        name: Test
+        run: docker run --rm fizzka/docker-phalcon:${{ env.IMAGE_TAG }} sh -c "php --ri phalcon | grep -i ^version"
+
+      # - name: Build and push
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: "{{ defaultContext }}:${{ matrix.php }}/${{ matrix.os }}"
+      #     platforms: linux/amd64,linux/arm64
+      #     push: true
+      #     tags: fizzka/docker-phalcon:${{ env.IMAGE_TAG }}
