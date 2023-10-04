@@ -1,13 +1,10 @@
-name: Test Dockerfile
+name: docker-phalcon builder
 
 on:
   pull_request:
   push:
     branches:
       - master
-
-env:
-  PHP_VARIANT:
 
 jobs:
   build:
@@ -26,6 +23,8 @@ jobs:
         os:
           - ""
           - -alpine
+    env:
+      PHP_VARIANT: ${{ matrix.php }}${{ matrix.variant }}${{ matrix.os }}
 
     steps:
       -
@@ -34,8 +33,6 @@ jobs:
       -
         name: Build
         uses: docker/build-push-action@v5
-        env:
-          PHP_VARIANT: ${{ matrix.php }}${{ matrix.variant }}${{ matrix.os }}
         with:
           load: true
           file: Dockerfile${{ matrix.os }}
