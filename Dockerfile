@@ -1,17 +1,12 @@
 ARG PHP_VARIANT=8.2
 
-FROM php:${PHP_VARIANT}
-
-ARG PHALCON_VERSION=5.0.4
+FROM php:8.1
 
 LABEL maintainer="MilesChou <github.com/MilesChou>, fizzka <github.com/fizzka>"
 
+ARG PHALCON_VERSION=5.0.4
+
 RUN set -xe && \
-        apk add --no-cache --virtual .build-deps \
-            autoconf \
-            g++ \
-            make \
-        && \
         docker-php-source extract && \
         # Install ext-phalcon
         curl -LO https://github.com/phalcon/cphalcon/archive/v${PHALCON_VERSION}.tar.gz && \
@@ -25,7 +20,6 @@ RUN set -xe && \
             /cphalcon-${PHALCON_VERSION} \
         && \
         docker-php-source delete && \
-        apk del .build-deps && \
         php -m
 
 COPY docker-phalcon-* /usr/local/bin/

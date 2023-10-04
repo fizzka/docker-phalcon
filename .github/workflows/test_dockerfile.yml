@@ -7,7 +7,7 @@ on:
       - master
 
 env:
-  IMAGE_TAG: testing
+  PHP_VARIANT:
 
 jobs:
   build:
@@ -19,49 +19,46 @@ jobs:
           - 7.4
           - "8.0"
           - 8.1
-          - 8.2
-        os:
-          # - ""
-          - alpine
+          # - 8.2
         variant:
           - "" # cli
-          # - fpm
+          - -fpm
+        os:
+          - ""
+          - -alpine
 
     steps:
       -
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-        #   IMAGE_TAG: ${{ matrix.php }}-${{ matrix.os }}
       -
         name: Build
         uses: docker/build-push-action@v5
+        env:
+          PHP_VARIANT: ${{ matrix.php }}${{ matrix.variant }}${{ matrix.os }}
         with:
           load: true
-          # context: "{{ defaultContext }}:${{ matrix.php }}/${{ matrix.os }}"
-          file: Dockerfile-alpine
+          file: Dockerfile${{ matrix.os }}
           build-args:
-            PHP_VARIANT=${{ matrix.php }}
-          # platforms: linux/amd64,linux/arm64
-          tags: fizzka/docker-phalcon:${{ env.IMAGE_TAG }}
+            PHP_VARIANT=${{ env.PHP_VARIANT }}
+          tags: fizzka/docker-phalcon:${{ env.PHP_VARIANT }}-tesing
       -
         name: Test
-        run: docker run --rm fizzka/docker-phalcon:${{ env.IMAGE_TAG }} sh -c "php -v; php --ri phalcon | grep -i ^version"
+        run: docker run --rm fizzka/docker-phalcon:${{ env.PHP_VARIANT }}-tesing sh -c "php -v; php --ri phalcon | grep -i ^version"
 
-      # -
-      #   name: Login
-      #   if: github.event_name != 'pull_request'
-      #   uses: docker/login-action@v3
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      -
+        name: Login
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # - name: Build and push
-      #   if: github.event_name != 'pull_request'
-      #   uses: docker/build-push-action@v5
-      #   env:
-      #     IMAGE_TAG: ${{ matrix.php }}-${{ matrix.os }}
-      #   with:
-      #     push: true
-      #     context: "{{ defaultContext }}:${{ matrix.php }}/${{ matrix.os }}"
-      #     # platforms: linux/amd64,linux/arm64
-      #     tags: fizzka/docker-phalcon:${{ env.IMAGE_TAG }}
+      - name: Build and push
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          context: "{{ defaultContext }}:${{ matrix.php }}/${{ matrix.os }}"
+          # platforms: linux/amd64,linux/arm64
+          tags: fizzka/docker-phalcon:${{ env.PHP_VARIANT }}
