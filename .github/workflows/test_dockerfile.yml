@@ -41,7 +41,7 @@ jobs:
           load: true
           # context: "{{ defaultContext }}:${{ matrix.php }}/${{ matrix.os }}"
           file: Dockerfile-alpine
-          platforms: linux/amd64,linux/arm64
+          # platforms: linux/amd64,linux/arm64
           tags: fizzka/docker-phalcon:${{ env.IMAGE_TAG }}
       -
         name: Test
